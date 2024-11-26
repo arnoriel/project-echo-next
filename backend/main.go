@@ -51,6 +51,8 @@ func main() {
 	e.GET("/contents", getAllContents)       // Untuk mendapatkan semua konten
 	e.PUT("/contents/:id", editContent)      // Untuk mengedit konten berdasarkan ID
 	e.DELETE("/contents/:id", deleteContent) // Untuk menghapus konten berdasarkan ID
+	e.PUT("/contents/:id/restore", restoreContent)
+	e.GET("/contents/deleted", getDeletedContents)
 	e.GET("/contents/:id", getContentByID)
 
 	// Start server
@@ -191,7 +193,7 @@ func createContent(c echo.Context) error {
 
 // Get all contents
 func getAllContents(c echo.Context) error {
-	rows, err := db.Query("SELECT id, title, image, description, summary, author FROM contents")
+	rows, err := db.Query("SELECT id, title, image, description, summary, author FROM contents WHERE deleted_at IS NULL")
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to fetch contents"})
 	}
@@ -207,27 +209,27 @@ func getAllContents(c echo.Context) error {
 		contents = append(contents, content)
 	}
 
-	return c.JSON(http.StatusOK, contents) // Harus mengembalikan array
+	return c.JSON(http.StatusOK, contents)
 }
 
 // Get content by ID
 func getContentByID(c echo.Context) error {
-    id := c.Param("id")
+	id := c.Param("id")
 
-    var content Content
-    err := db.QueryRow(
-        "SELECT id, title, image, description, summary, author FROM contents WHERE id = $1",
-        id,
-    ).Scan(&content.ID, &content.Title, &content.Image, &content.Description, &content.Summary, &content.Author)
+	var content Content
+	err := db.QueryRow(
+		"SELECT id, title, image, description, summary, author FROM contents WHERE id = $1 AND deleted_at IS NULL",
+		id,
+	).Scan(&content.ID, &content.Title, &content.Image, &content.Description, &content.Summary, &content.Author)
 
-    if err != nil {
-        if err == sql.ErrNoRows {
-            return c.JSON(http.StatusNotFound, map[string]string{"error": "Content not found"})
-        }
-        return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to fetch content"})
-    }
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.JSON(http.StatusNotFound, map[string]string{"error": "Content not found"})
+		}
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to fetch content"})
+	}
 
-    return c.JSON(http.StatusOK, content)
+	return c.JSON(http.StatusOK, content)
 }
 
 // Edit content
@@ -295,21 +297,18 @@ func editContent(c echo.Context) error {
     return c.JSON(http.StatusOK, map[string]string{"message": "Content updated successfully"})
 }
 
-// Delete content
+// Delete content (soft delete)
 func deleteContent(c echo.Context) error {
 	id := c.Param("id")
 
-	// Log id yang diterima
-	log.Printf("Deleting content with ID: %s", id)
-
-	// Langsung hapus konten berdasarkan ID
-	result, err := db.Exec("DELETE FROM contents WHERE id = $1", id)
+	// Update kolom deleted_at dengan waktu sekarang
+	result, err := db.Exec("UPDATE contents SET deleted_at = NOW() WHERE id = $1 AND deleted_at IS NULL", id)
 	if err != nil {
-		log.Printf("Error deleting content: %v", err)
+		log.Printf("Error soft deleting content: %v", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Failed to delete content"})
 	}
 
-	// Cek berapa baris yang dihapus
+	// Cek apakah ada baris yang diperbarui
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		log.Printf("Error getting rows affected: %v", err)
@@ -317,8 +316,53 @@ func deleteContent(c echo.Context) error {
 	}
 
 	if rowsAffected == 0 {
-		return c.JSON(http.StatusNotFound, map[string]string{"message": "Content not found"})
+		return c.JSON(http.StatusNotFound, map[string]string{"message": "Content not found or already deleted"})
 	}
 
 	return c.JSON(http.StatusOK, map[string]string{"message": "Content deleted successfully"})
+}
+
+// Restore content
+func restoreContent(c echo.Context) error {
+	id := c.Param("id")
+
+	result, err := db.Exec("UPDATE contents SET deleted_at = NULL WHERE id = $1 AND deleted_at IS NOT NULL", id)
+	if err != nil {
+		log.Printf("Error restoring content: %v", err)
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Failed to restore content"})
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Printf("Error getting rows affected: %v", err)
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Failed to restore content"})
+	}
+
+	if rowsAffected == 0 {
+		return c.JSON(http.StatusNotFound, map[string]string{"message": "Content not found or not deleted"})
+	}
+
+	return c.JSON(http.StatusOK, map[string]string{"message": "Content restored successfully"})
+}
+
+// Get deleted contents
+func getDeletedContents(c echo.Context) error {
+	rows, err := db.Query("SELECT id, title, image, description, summary, author FROM contents WHERE deleted_at IS NOT NULL")
+	if err != nil {
+		log.Printf("Error fetching deleted contents: %v", err)
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to fetch deleted contents"})
+	}
+	defer rows.Close()
+
+	var contents []Content
+	for rows.Next() {
+		var content Content
+		if err := rows.Scan(&content.ID, &content.Title, &content.Image, &content.Description, &content.Summary, &content.Author); err != nil {
+			log.Printf("Error scanning row: %v", err)
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error parsing deleted contents"})
+		}
+		contents = append(contents, content)
+	}
+
+	return c.JSON(http.StatusOK, contents)
 }

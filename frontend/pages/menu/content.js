@@ -34,6 +34,9 @@ export default function Content() {
       <h1>Content List</h1>
       <Link href="/menu/addcontent">Add Content</Link>
       <button>
+        <a href="/menu/restorecontent">Restore Contents</a>
+      </button>
+      <button>
         <a href="/user/dashboard">Return</a>
       </button>
       <ul>
