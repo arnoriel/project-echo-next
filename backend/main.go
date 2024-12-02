@@ -36,9 +36,9 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"http://localhost:3000"},
+		AllowOrigins: []string{"http://localhost:3000", "http://localhost:3001"},
 		AllowMethods: []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete},
-	}))
+	}))	
 	// Serve Static Images from Uploads
 	e.Static("/uploads", "uploads")
 

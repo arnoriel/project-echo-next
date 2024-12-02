@@ -1,0 +1,206 @@
+/* Reset */
+body,
+h1,
+p,
+ul,
+li,
+a {
+  margin: 0;
+  padding: 0;
+  text-decoration: none;
+  list-style: none;
+  color: inherit;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background-color: #12172D;
+  /* Dark background color */
+  color: #FFFFFF;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 50px;
+  background-color: #12172D;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.navbar ul {
+  display: flex;
+  gap: 20px;
+}
+
+.navbar ul li a {
+  color: #FFFFFF;
+  font-size: 16px;
+}
+
+.navbar ul li a:hover {
+  color: #A259FF;
+  /* Purple hover effect */
+}
+
+.whatsapp-button {
+  background-color: #FFFFFF;
+  color: #12172D;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: bold;
+}
+
+.hero-section {
+  display: flex;
+  align-items: center;
+  padding: 50px;
+  gap: 30px;
+}
+
+.hero-content {
+  flex: 1;
+}
+
+.hero-content h1 {
+  font-size: 36px;
+  line-height: 1.4;
+  color: #FFFFFF;
+}
+
+.hero-content p {
+  margin-top: 20px;
+  font-size: 16px;
+  color: #D1D1D1;
+}
+
+.hero-image {
+  flex: 1;
+}
+
+.hero-image img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+/* Stats Section */
+.stats-section {
+  padding: 50px;
+  background-color: #12172D;
+  color: #FFFFFF;
+}
+
+.stats-content {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.stats-image img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.stats-text {
+  flex: 1;
+}
+
+.stats-text h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+}
+
+.stats-text p {
+  color: #D1D1D1;
+  font-size: 16px;
+}
+
+.divider {
+  margin: 40px 0;
+  border: none;
+  border-top: 2px solid #A259FF;
+}
+
+.stats-numbers {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+}
+
+.stat-item h3 {
+  font-size: 36px;
+  color: #1DBF73;
+  margin-bottom: 10px;
+}
+
+.stat-item p {
+  font-size: 14px;
+  color: #D1D1D1;
+}
+
+.stat-item .source {
+  margin-top: 10px;
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* Empower Section */
+.empower-section {
+  padding: 50px;
+  background-color: #12172D;
+  color: #FFFFFF;
+  text-align: center;
+}
+
+.empower-section h2 {
+  font-size: 28px;
+  margin-bottom: 40px;
+}
+
+.empower-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  align-items: center;
+  justify-content: center;
+}
+
+.empower-image img {
+  max-width: 100%;
+  border-radius: 10px;
+}
+
+.empower-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+}
+
+.empower-card {
+  background-color: #1E2B5E;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: left;
+}
+
+.empower-card h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: #FFFFFF;
+}
+
+.empower-card p {
+  font-size: 14px;
+  color: #D1D1D1;
+}
